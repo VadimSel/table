@@ -21,43 +21,67 @@ import {
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { DataResponse, Pagination } from "../types";
 import { getData, searchData } from "../utils/api";
+import SvgRightArrow from "@/assets/icons/rightArrow";
+import SvgLeftArrow from "@/assets/icons/leftArrow";
+
+const fieldHeader = ["Год выхода", "Жанр", "Тип", "Рейтинг"];
+type modalValueType = "search" | "sort" | "filter";
 
 const Table = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [resultData, setResultData] = useState<DataResponse[]>([]);
 	const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+	const [modalValue, setModalValue] = useState<modalValueType>();
 	const [paginationData, setPaginationData] = useState<Pagination>();
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [pageValue, setPageValue] = useState("");
 
+	const [searchingName, setSearchingName] = useState<string>("");
+	const [searchingGenre, setSearchingGenre] = useState<number>(0);
+	const [searchingType, setSearchingType] = useState<string>("");
+	const [searchingRating, setSearchingRating] = useState<string>("");
+
 	const statusBarHeight = getStatusBarHeight(); // Получение высоты статус бара
 	const windowHeight = Dimensions.get("window").height; // Получение высоты контента, без учёта системных элементов
 
-	function fetchData(word: string = "", page: number = currentPage) {
-		getData(word, page).then((data) => {
+	function fetchData(
+		name: string = searchingName,
+		page: number = currentPage,
+		genre: number = searchingGenre,
+		type: string = searchingType,
+		rating: string = searchingRating
+	) {
+		setSearchingName(name);
+
+		if (isLoading) return;
+
+		setIsLoading(true);
+
+		getData(name, page, genre, type, rating).then((data) => {
 			if (data) {
 				setResultData(data.data);
 				setPaginationData(data.pagination);
 				setCurrentPage(data.pagination.current_page);
+				setIsModalVisible(false);
 				setIsLoading(false);
 			}
 		});
 	}
 
-	function searchHandler(word: string) {
-		setIsLoading(true);
-		searchData(word).then((res) => {
-			if (res && res.length > 0) {
-				setResultData(res);
-				setIsModalVisible(false);
-				setIsLoading(false);
-			} else {
-				Alert.alert("Не найдено");
-				setIsLoading(false);
-			}
-			setIsLoading(false);
-		});
-	}
+	// function searchHandler(word: string) {
+	// 	setIsLoading(true);
+	// 	searchData(word).then((res) => {
+	// 		if (res && res.length > 0) {
+	// 			setResultData(res);
+	// 			setIsModalVisible(false);
+	// 			setIsLoading(false);
+	// 		} else {
+	// 			Alert.alert("Не найдено");
+	// 			setIsLoading(false);
+	// 		}
+	// 		setIsLoading(false);
+	// 	});
+	// }
 
 	function changeCurrentPage(action: string) {
 		if (action === "next" && paginationData?.has_next_page) {
@@ -67,25 +91,44 @@ const Table = () => {
 			setIsLoading(true);
 			setCurrentPage(currentPage - 1);
 		}
+		setIsLoading(false);
 	}
 
 	const changePageValueHandler = {
 		onChangeTextHandler(value: string) {
-			const number = Number(value)
+			const number = Number(value);
 			if (number > 0 && number <= Number(paginationData?.last_visible_page)) {
-				setPageValue(value)
+				setPageValue(value);
 			}
 		},
 
 		onSubmitEditing(value: string) {
-			const number = Number(value)
+			const number = Number(value);
 			if (number <= 0) {
 				Alert.alert("Введите число");
 			} else {
 				setCurrentPage(number);
 				setPageValue("");
 			}
+		},
+	};
+
+	// ---------------- Modal ---------------- \\
+
+	function openModalHandler(value: modalValueType) {
+		setIsModalVisible(true);
+
+		if (value === "search") {
+			setModalValue("search");
+		} else if (value === "sort") {
+			setModalValue("sort");
+		} else {
+			setModalValue("filter");
 		}
+	}
+
+	const filtersHandler = {
+
 	}
 
 	useEffect(() => {
@@ -98,7 +141,13 @@ const Table = () => {
 	// Так как NativeWind не поддерживает динамические значения, для корректного отображения контента (без наезда на системные элементы) используются инлайновые стили в родительском теге
 
 	return (
-		<View style={{ height: windowHeight + statusBarHeight, paddingTop: statusBarHeight }}>
+		// <View style={{ height: windowHeight - statusBarHeight, paddingTop: statusBarHeight }}>
+		<View
+			style={{
+				height: windowHeight - statusBarHeight * 2.31,
+				paddingTop: statusBarHeight,
+			}}
+		>
 			<Modal
 				visible={isModalVisible}
 				onRequestClose={() => setIsModalVisible(false)}
@@ -107,16 +156,43 @@ const Table = () => {
 			>
 				<TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
 					<View className="flex-1 justify-center items-center bg-[rgba(0,0,0,0.5)]">
-						<View
-							onStartShouldSetResponder={() => true}
-							className="w-72 h-56 rounded-md bg-white items-center border"
-						>
-							<Text className="mt-10 -mb-10 font-medium">Поиск</Text>
-							<TextInput
-								className="h-9 w-52 py-0 border rounded-sm my-auto"
-								onSubmitEditing={(e) => searchHandler(e.nativeEvent.text)}
-							/>
-						</View>
+						{modalValue === "search" && (
+							<View
+								onStartShouldSetResponder={() => true}
+								className="w-72 h-56 rounded-md bg-white items-center border"
+							>
+								<Text className="mt-10 -mb-10 font-medium">Поиск</Text>
+								<TextInput
+									className="h-9 w-52 py-0 border rounded-sm my-auto"
+									onSubmitEditing={(e) => fetchData(e.nativeEvent.text)}
+								/>
+							</View>
+						)}
+						{modalValue === "sort" && (
+							<View
+								onStartShouldSetResponder={() => true}
+								className="w-72 h-56 rounded-md bg-white items-center border"
+							>
+								<Text className="mt-10 -mb-10 font-medium">Сортировка</Text>
+								<TextInput
+									className="h-9 w-52 py-0 border rounded-sm my-auto"
+									onSubmitEditing={(e) => fetchData(e.nativeEvent.text)}
+								/>
+							</View>
+						)}
+						{modalValue === "filter" && (
+							<View
+								onStartShouldSetResponder={() => true}
+								className="w-72 h-56 rounded-md bg-white items-center border"
+							>
+								<Text className="mt-10 -mb-10 font-medium">Фильтры</Text>
+								<TextInput
+									className="h-9 w-14 py-0 border rounded-sm my-auto text-center"
+									keyboardType="numeric"
+									onSubmitEditing={(e) => {}}
+								/>
+							</View>
+						)}
 					</View>
 				</TouchableWithoutFeedback>
 			</Modal>
@@ -124,7 +200,7 @@ const Table = () => {
 				<View className="border-b flex-row justify-between items-center px-4">
 					<TouchableOpacity
 						onPress={() => {
-							setCurrentPage(1);
+							fetchData("", 1);
 						}}
 					>
 						<SvgLogo />
@@ -133,11 +209,15 @@ const Table = () => {
 						<ActivityIndicator className="m-auto" size={"large"} color={"cyan"} />
 					)}
 					<View className="flex-row gap-6">
-						<TouchableOpacity onPress={() => setIsModalVisible(true)}>
+						<TouchableOpacity onPress={() => openModalHandler("search")}>
 							<SvgSearch />
 						</TouchableOpacity>
-						<SvgSort />
-						<SvgFilter />
+						<TouchableOpacity onPress={() => openModalHandler("sort")}>
+							<SvgSort />
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => openModalHandler("filter")}>
+							<SvgFilter />
+						</TouchableOpacity>
 					</View>
 				</View>
 				{/* <View className="border-b flex-row justify-between py-5 items-center px-4">
@@ -151,21 +231,12 @@ const Table = () => {
 							className="h-9 w-12 py-0 border rounded-md text-center"
 							placeholder={`${currentPage}`}
 							value={pageValue}
-							// onChangeText={(number) => onChangeTextHandler(number)}
-							onChangeText={(number) => changePageValueHandler.onChangeTextHandler(number)}
-							// onChangeText={(number) => {
-							// 	if ((Number(number) > 0 && Number(number) <= Number(paginationData?.last_visible_page)) || number === "") {
-							// 		setPageValue(number);
-							// 	}
-							// }}
+							onChangeText={(number) =>
+								changePageValueHandler.onChangeTextHandler(number)
+							}
 							keyboardType="numeric"
 							onSubmitEditing={(e) => {
-								if (Number(e.nativeEvent.text) <= 0) {
-									Alert.alert("Введите число");
-								} else {
-									setCurrentPage(Number(pageValue));
-									setPageValue("");
-								}
+								changePageValueHandler.onSubmitEditing(e.nativeEvent.text);
 							}}
 						/>
 						<Text>из {paginationData?.last_visible_page}</Text>
@@ -173,43 +244,132 @@ const Table = () => {
 					<View className="flex-row gap-5">
 						<Pressable
 							onPress={() => changeCurrentPage("back")}
-							className="items-center justify-center size-11 border rounded-md"
+							className="items-center justify-center size-11 border rounded-md pr-1"
 						>
-							<Text>L</Text>
+							<SvgLeftArrow />
 						</Pressable>
 						<Pressable
 							onPress={() => changeCurrentPage("next")}
 							className="items-center justify-center size-11 border rounded-md"
 						>
-							<Text>R</Text>
+							<SvgRightArrow />
 						</Pressable>
 					</View>
 				</View>
 			</View>
 			{!isLoading && (
-				<ScrollView>
-					{resultData?.map((el) => {
-						return (
-							<View key={el.mal_id} className="flex-row justify-between px-4">
-								<View className="w-40 h-60">
-									<Image
-										source={{ uri: el.images.webp.image_url }}
-										className="w-full h-full"
-										resizeMode="cover"
-									/>
+				// <ScrollView>
+				// 	{resultData?.map((el) => {
+				// 		return (
+				// 			<View key={el.mal_id} className="flex-row justify-between px-4">
+				// 				<View className="w-40 h-60">
+				// 					<Image
+				// 						source={{ uri: el.images.webp.image_url }}
+				// 						className="w-full h-full"
+				// 						resizeMode="cover"
+				// 					/>
+				// 				</View>
+				// 				<View className="border w-56">
+				// 					<Text className="text-blue-400">{el.title}</Text>
+				// 					<Text>{el.title_english}</Text>
+				// 					<Text>{el.year}</Text>
+				// 					<Text>{el.type}</Text>
+				// 					<Text>{el.genres.map((genre) => genre.name).join(", ")}</Text>
+				// 				</View>
+				// 			</View>
+				// 		);
+				// 	})}
+				// </ScrollView>
+
+				<View>
+					<View className="flex-row">
+						<ScrollView>
+							<View className="flex-row">
+								<View className="border-r">
+									<View className="flex-row h-10">
+										<View className="w-48 items-center justify-center bg-gray-200">
+											<Text>Название</Text>
+										</View>
+									</View>
+									<View>
+										{resultData.map((el) => {
+											return (
+												<View key={el.mal_id} className="flex-row">
+													<View className="w-48 border-b h-10 justify-center items-center px-4">
+														<Text>{el.title}</Text>
+													</View>
+												</View>
+											);
+										})}
+									</View>
 								</View>
-								<View className="border w-56">
-									<Text className="text-blue-400">{el.title}</Text>
-									<Text>{el.title_english}</Text>
-									<Text>{el.year}</Text>
-									<Text>{el.type}</Text>
-									<Text>{el.genres.map((genre) => genre.name).join(", ")}</Text>
-								</View>
+
+								<ScrollView horizontal>
+									<View>
+										<View className="flex-row h-10">
+											{fieldHeader.map((item, i) => {
+												return (
+													<View
+														key={i}
+														className="w-24 items-center justify-center bg-gray-200"
+													>
+														<Text>{item}</Text>
+													</View>
+												);
+											})}
+											{/* <View className="w-24 items-center justify-center bg-gray-200">
+												<Text>Год выхода</Text>
+											</View>
+											<View className="w-24 items-center justify-center bg-gray-200">
+												<Text>Жанр</Text>
+											</View>
+											<View className="w-24 items-center justify-center bg-gray-200">
+												<Text>Тип</Text>
+											</View>
+											<View className="w-24 items-center justify-center bg-gray-200">
+												<Text>Рейтинг</Text>
+											</View> */}
+										</View>
+										{resultData.map((el) => {
+											const fields = [
+												{ value: el.year },
+												{ value: el.genres[0].name },
+												{ value: el.type },
+												{ value: el.score },
+											];
+
+											return (
+												<View key={el.mal_id} className="flex-row">
+													{fields.map((item, i) => (
+														<View
+															key={i}
+															className="w-24 border-b h-10 justify-center items-center px-4"
+														>
+															<Text>{item.value}</Text>
+														</View>
+													))}
+												</View>
+											);
+										})}
+									</View>
+								</ScrollView>
 							</View>
-						);
-					})}
-				</ScrollView>
-			)}S
+						</ScrollView>
+					</View>
+					{/* <View className="w-20 border-r">
+						<View className="border-b h-10 items-center bg-gray-200">
+							<Text>Год выхода</Text>
+						</View>
+						{resultData.map((el) => {
+							return (
+								<View key={el.mal_id} className="border-b h-10 justify-center px-4">
+									<Text>{el.year}</Text>
+								</View>
+							);
+						})}
+					</View> */}
+				</View>
+			)}
 			<StatusBar style="auto" />
 			{/* <StatusBar barStyle={"default"} animated/> */}
 		</View>
