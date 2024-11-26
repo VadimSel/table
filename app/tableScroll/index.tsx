@@ -3,7 +3,6 @@ import SvgRightArrow from "@/assets/icons/rightArrow";
 import SvgFilter from "@/assets/icons/svgFilter";
 import SvgLogo from "@/assets/icons/svgLogo";
 import SvgSearch from "@/assets/icons/svgSearch";
-import SvgSort from "@/assets/icons/svgSort";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
@@ -11,7 +10,6 @@ import {
 	Alert,
 	Dimensions,
 	Modal,
-	Pressable,
 	ScrollView,
 	Text,
 	TextInput,
@@ -22,8 +20,8 @@ import {
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { DataResponse, Pagination } from "../types";
 import { getData } from "../utils/api";
-
-// const fieldHeader = ["Год выхода", "Тип", "Рейтинг", "Возраст"];
+import svgSortHeader from "@/assets/icons/svgSortHeader";
+import SvgSortHeader from "@/assets/icons/svgSortHeader";
 
 const fieldHeader: { label: string; field: sortFieldType }[] = [
 	{ label: "Год выхода", field: "year" },
@@ -95,7 +93,7 @@ const Table = () => {
 				setResultData(data.data);
 				setPaginationData(data.pagination);
 				setCurrentPage(data.pagination.current_page);
-				
+
 				setIsLoading(false);
 			}
 		});
@@ -117,13 +115,25 @@ const Table = () => {
 			const number = Number(value);
 			if (number <= Number(paginationData?.last_visible_page)) {
 				setPageValue(value);
+			} else if (number <= 0) {
+				Alert.alert(
+					"Ошибка",
+					`Число должно быть от 0, до ${paginationData?.last_visible_page}`
+				);
 			}
 		},
 
 		onSubmitEditing(value: string) {
-			const number = Number(value);
-			if (number <= 0) {
-				Alert.alert("Введите число");
+			const number = Math.max(
+				0,
+				Math.min(Number(value), paginationData!.last_visible_page)
+			);
+			if (number < 1) {
+				Alert.alert(
+					"Ошибка",
+					`Доступный диапозон страниц от 1 до ${paginationData?.last_visible_page}`
+				);
+				setPageValue("");
 			} else {
 				setCurrentPage(number);
 				setPageValue("");
@@ -213,44 +223,32 @@ const Table = () => {
 
 	// ---------------- Filters ---------------- \\
 
-	function resetFilters () {
+	function resetFilters() {
 		fetchData("", 1, 0, 10, "", "");
-		setSearchingType("")
-		setSearchingRating("")
+		setSearchingType("");
+		setSearchingRating("");
+		setSearchingMinScore(0);
+		setSearchingMaxScore(10);
 	}
 
-	// function filtersHandler (type: string, rating: string, minScore: number, maxScore: number) {
-	// 		setSearchingType(type);
-	// 		setSearchingRating(rating);
-	// 		setSearchingMinScore(minScore)
-	// 		setSearchingMaxScore(maxScore)
-	// };
-	// const filtersHandler = {
-	// 	types(type: string) {
-	// 		setSearchingType(type);
-	// 		// console.log("type: ", type)
-	// 	},
-
-	// 	rating(rating: string) {
-	// 		setSearchingRating(rating);
-	// 		// console.log("rating: ", rating)
-	// 	},
-
-	// 	minScore(minScore: number) {
-	// 		setSearchingMinScore(minScore);
-	// 		// console.log("minScore: ", minScore)
-	// 	},
-
-	// 	maxScore(maxScore: number) {
-	// 		setSearchingMaxScore(maxScore);
-	// 		// console.log("maxScore: ", maxScore)
-	// 	},
-	// };
+	function findHandler() {
+		if (searchingMinScore > searchingMaxScore) {
+			Alert.alert("Ошибка", "Минимальное число, не может быть больше максимального");
+		} else {
+			fetchData();
+		}
+	}
 
 	useEffect(() => {
 		setIsLoading(true);
 		fetchData();
 	}, [currentPage]);
+
+	useEffect(() => {
+		if (resultData.length === 0 && searchingName) {
+			Alert.alert("", "С такими фильтрами результатов нет");
+		}
+	}, [resultData]);
 
 	console.log(
 		"type: ",
@@ -286,7 +284,7 @@ const Table = () => {
 								onStartShouldSetResponder={() => true}
 								className="w-72 h-56 rounded-md bg-white items-center border"
 							>
-								<Text className="mt-10 -mb-10 font-medium">Поиск</Text>
+								<Text className="mt-10 -mb-10 font-medium text-lg">Поиск по названию</Text>
 								<TextInput
 									className="h-9 w-52 py-0 border rounded-sm my-auto"
 									onSubmitEditing={(e) => fetchData(e.nativeEvent.text, 1)}
@@ -296,56 +294,82 @@ const Table = () => {
 						{modalValue === "filter" && (
 							<View
 								onStartShouldSetResponder={() => true}
-								className="w-80 h-96 rounded-md bg-white items-center border"
+								className="w-80 rounded-md bg-white items-center border"
 							>
-								<Text className="font-medium">Фильтрация</Text>
-
-								<View className="flex-row justify-between w-52">
-									<TextInput
-										className="h-9 w-14 py-0 rounded-sm border border-blue-500 text-center"
-										keyboardType="numeric"
-										value={String(searchingMinScore)}
-										onChangeText={(e) => setSearchingMinScore(Number(e) <= 9 ? Number(e) : searchingMinScore && Number(e) > searchingMaxScore ? searchingMaxScore : Number(e))}
-										// onSubmitEditing={(e) =>
-										// 	setSearchingMinScore(Number(e.nativeEvent.text))
-										// }
-									/>
-									<TextInput
-										className="h-9 w-14 py-0 rounded-sm border border-blue-500 text-center"
-										keyboardType="numeric"
-										value={String(searchingMaxScore)}
-										onChangeText={(e) => setSearchingMaxScore(Number(e) <= searchingMinScore ? searchingMinScore : Number(e) && Number(e) > 10 ? searchingMaxScore : Number(e) )}
-										// onSubmitEditing={(e) =>
-										// 	setSearchingMaxScore(Number(e.nativeEvent.text))
-										// }
-									/>
+								<Text className="font-medium my-3 text-xl">Фильтрация</Text>
+								<Text className="font-medium">Рейтинг</Text>
+								<View className="flex-row justify-between w-40 mb-6">
+									<View className="items-center">
+										<Text>От</Text>
+										<TextInput
+											className="h-9 w-14 py-0 rounded-sm border text-center"
+											keyboardType="numeric"
+											value={String(searchingMinScore)}
+											onChangeText={(e) =>
+												setSearchingMinScore(
+													Math.max(0, Math.min(Number(e), searchingMaxScore))
+												)
+											}
+										/>
+									</View>
+									<View className="items-center">
+										<Text>До</Text>
+										<TextInput
+											className="h-9 w-14 py-0 rounded-sm border text-center"
+											keyboardType="numeric"
+											value={String(searchingMaxScore)}
+											onChangeText={(e) => {
+												setSearchingMaxScore(Math.max(0, Math.min(Number(e), 10)));
+											}}
+										/>
+									</View>
 								</View>
-
-								<View className="h-28 w-72 border rounded-md flex-row items-center justify-center flex-wrap">
+								<Text className="font-medium mb-3">Тип</Text>
+								<View className="h-28 w-72 border rounded-md flex-row items-center justify-center flex-wrap mb-6">
 									{typeOptions.map(({ label, option }) => (
 										<TouchableOpacity
 											key={label}
 											onPress={() => setSearchingType(label)}
 											className="w-1/3 h-1/3"
 										>
-											{/* <Text className="text-lg text-center">{option}</Text> */}
-											<Text className={`text-lg text-center ${searchingType === label && `color-blue-700`}`}>{option}</Text>
+											<Text
+												className={`text-lg text-center ${
+													searchingType === label && `color-blue-700`
+												}`}
+											>
+												{option}
+											</Text>
 										</TouchableOpacity>
 									))}
 								</View>
-
-								<View className="h-16 w-72 border rounded-md flex-row items-center justify-evenly">
+								<Text className="font-medium mb-3">Возраст</Text>
+								<View className="h-16 w-72 border rounded-md flex-row items-center justify-evenly mb-11">
 									{ratingOptions.map(({ label, option }) => (
-										<TouchableOpacity key={label} onPress={() => setSearchingRating(label)}>
-											<Text className={`text-lg text-center ${searchingRating === label && `color-blue-700`}`}>{option}</Text>
+										<TouchableOpacity
+											key={label}
+											onPress={() => setSearchingRating(label)}
+										>
+											<Text
+												className={`text-lg text-center ${
+													searchingRating === label && `color-blue-700`
+												}`}
+											>
+												{option}
+											</Text>
 										</TouchableOpacity>
 									))}
 								</View>
 
-								<TouchableOpacity onPress={() => fetchData()} className="w-72 h-12 rounded-sm border-2 border-green-600 justify-center items-center">
+								<TouchableOpacity
+									onPress={() => findHandler()}
+									className="w-72 h-12 rounded-sm border-2 border-green-600 justify-center items-center mb-3"
+								>
 									<Text className="color-green-600">Найти</Text>
 								</TouchableOpacity>
-								<TouchableOpacity onPress={() => resetFilters()} className="w-72 h-12 rounded-sm border-2 border-red-600 justify-center items-center">
+								<TouchableOpacity
+									onPress={() => resetFilters()}
+									className="w-72 h-12 rounded-sm border-2 border-red-600 justify-center items-center mb-6"
+								>
 									<Text className="color-red-600">Сбросить фильтры</Text>
 								</TouchableOpacity>
 							</View>
@@ -355,14 +379,12 @@ const Table = () => {
 			</Modal>
 			<View>
 				<View className="border-b flex-row justify-between items-center px-4">
-					<TouchableOpacity
-						onPress={() => resetFilters()}
-					>
+					<TouchableOpacity onPress={() => resetFilters()}>
 						<SvgLogo />
 					</TouchableOpacity>
-					{isLoading && (
+					{/* {isLoading && (
 						<ActivityIndicator className="m-auto" size={"large"} color={"cyan"} />
-					)}
+					)} */}
 					<View className="flex-row gap-6">
 						<TouchableOpacity onPress={() => openModalHandler("search")}>
 							<SvgSearch />
@@ -379,7 +401,14 @@ const Table = () => {
 							className="h-9 w-12 py-0 border rounded-md text-center"
 							value={pageValue || String(currentPage)}
 							onChangeText={(number) =>
-								changePageValueHandler.onChangeTextHandler(number)
+								changePageValueHandler.onChangeTextHandler(
+									String(
+										Math.max(
+											0,
+											Math.min(Number(number), paginationData!.last_visible_page)
+										)
+									)
+								)
 							}
 							keyboardType="numeric"
 							onSubmitEditing={(e) => {
@@ -404,7 +433,7 @@ const Table = () => {
 					</View>
 				</View>
 			</View>
-			{!isLoading && (
+			{!isLoading ? (
 				<View>
 					<View className="flex-row">
 						<ScrollView>
@@ -413,9 +442,12 @@ const Table = () => {
 									<View className="flex-row h-10">
 										<TouchableOpacity
 											onPress={() => sortPressHandler("name")}
-											className="w-48 items-center justify-center bg-gray-200"
+											className="w-48 items-center gap-1 flex-row justify-center bg-gray-200"
 										>
 											<Text>Название</Text>
+											<View className="pt-[1.9px]">
+												<SvgSortHeader />
+											</View>
 										</TouchableOpacity>
 									</View>
 									<View>
@@ -438,10 +470,13 @@ const Table = () => {
 												return (
 													<TouchableOpacity
 														key={i}
-														className="w-28 items-center justify-center bg-gray-200"
+														className="w-28 flex-row gap-1 items-center justify-center bg-gray-200"
 														onPress={() => sortPressHandler(field)}
 													>
-														<Text>{label}</Text>
+														<Text className="pl-1">{label}</Text>
+														<View className="pt-[1.9px]">
+															<SvgSortHeader />
+														</View>
 													</TouchableOpacity>
 												);
 											})}
@@ -473,6 +508,8 @@ const Table = () => {
 						</ScrollView>
 					</View>
 				</View>
+			) : (
+				<ActivityIndicator className="m-auto" size={"large"} color={"black"} />
 			)}
 			<StatusBar style="auto" />
 			{/* <StatusBar barStyle={"default"} animated/> */}
