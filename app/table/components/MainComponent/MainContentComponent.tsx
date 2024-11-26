@@ -41,7 +41,7 @@ export const MainContentComponent = ({resultData, setResultData}: MainContentCom
   }
 
   return (
-    <View className="flex-row">
+    <View className="flex-row bg-background">
     <ScrollView>
       <View className="flex-row">
         <MainContentTitles

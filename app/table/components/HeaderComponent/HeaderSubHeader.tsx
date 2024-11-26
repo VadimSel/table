@@ -16,7 +16,7 @@ export const HeaderSubHeader = (props: HeaderSubHeaderProps) => {
 	const { paginationData, setIsLoading, setCurrentPage, currentPage } = props;
 
 	return (
-		<View className="border-b h-16 flex-row items-center justify-between px-4">
+		<View className="border-b h-16 flex-row items-center justify-between px-4 bg-background">
 			<PageCounter
 				paginationData={paginationData}
 				currentPage={currentPage}

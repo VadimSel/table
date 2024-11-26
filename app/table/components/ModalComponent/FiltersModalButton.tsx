@@ -22,9 +22,9 @@ export const FiltersModalButton = (props: FiltersModalButtonProps) => {
 		<>
 			<TouchableOpacity
 				onPress={() => findHandler()}
-				className="w-72 h-12 rounded-sm border-2 border-green-600 justify-center items-center mb-3"
+				className="w-72 h-12 rounded-sm border-2 border-allow justify-center items-center mb-3"
 			>
-				<Text className="color-green-600">Найти</Text>
+				<Text className="color-allow">Найти</Text>
 			</TouchableOpacity>
 			<TouchableOpacity
 				onPress={() => resetFilters()}

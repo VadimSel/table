@@ -34,10 +34,10 @@ export const FiltersModal = (props: FiltersModalProps) => {
 	return (
 		<View
 			onStartShouldSetResponder={() => true}
-			className="w-80 rounded-md bg-white items-center border"
+			className="w-80 rounded-md bg-modal items-center border"
 		>
 			<Text className="font-medium my-3 text-xl">Фильтрация</Text>
-			<Text className="font-medium">Рейтинг</Text>
+			<Text className="font-medium color-filterTitles">Рейтинг</Text>
 			<FiltersModalScore
 				{...{
 					searchingMinScore,
@@ -46,12 +46,12 @@ export const FiltersModal = (props: FiltersModalProps) => {
 					setSearchingMaxScore,
 				}}
 			/>
-			<Text className="font-medium mb-3">Тип</Text>
+			<Text className="font-medium mb-3 color-filterTitles">Тип</Text>
 			<FiltersModalType
 				searchingType={searchingType}
 				setSearchingType={setSearchingType}
 			/>
-			<Text className="font-medium mb-3">Возраст</Text>
+			<Text className="font-medium mb-3 color-filterTitles">Возраст</Text>
 			<FiltersModalRating
 				searchingRating={searchingRating}
 				setSearchingRating={setSearchingRating}

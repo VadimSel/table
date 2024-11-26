@@ -26,7 +26,7 @@ export const MainContentItems = ({sortPressHandler, resultData}: MainContentItem
 						return (
 							<TouchableOpacity
 								key={i}
-								className="w-28 flex-row gap-1 items-center justify-center bg-gray-200"
+								className="w-28 flex-row gap-1 items-center justify-center bg-titles"
 								onPress={() => sortPressHandler(field)}
 							>
 								<Text className="pl-1">{label}</Text>

@@ -26,7 +26,7 @@ export const HeaderMainHeader = ({
 	}
 
 	return (
-		<View className="border-b flex-row justify-between items-center px-4">
+		<View className="border-b flex-row justify-between items-center px-4 bg-background">
 			<TouchableOpacity onPress={() => resetFilters()}>
 				<SvgLogo />
 			</TouchableOpacity>

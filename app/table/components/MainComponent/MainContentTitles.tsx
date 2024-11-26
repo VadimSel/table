@@ -14,7 +14,7 @@ export const MainContentTitles = ({sortPressHandler, resultData}: MainContentTit
 			<View className="flex-row h-10">
 				<TouchableOpacity
 					onPress={() => sortPressHandler("name")}
-					className="w-48 items-center gap-1 flex-row justify-center bg-gray-200"
+					className="w-48 items-center gap-1 flex-row justify-center bg-titles"
 				>
 					<Text>Название</Text>
 					<View className="pt-[1.9px]">

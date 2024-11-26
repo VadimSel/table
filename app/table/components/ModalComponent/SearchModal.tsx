@@ -8,7 +8,7 @@ export const SearchModal = ({ fetchData }: SearchModalProps) => {
 	return (
 		<View
 			onStartShouldSetResponder={() => true}
-			className="w-72 h-56 rounded-md bg-white items-center border"
+			className="w-72 h-56 rounded-md bg-modal items-center border"
 		>
 			<Text className="mt-10 -mb-10 font-medium text-lg">Поиск по названию</Text>
 			<TextInput
