@@ -1,20 +1,12 @@
+import { modalValueType, useGlobalContext } from "@/app/Context";
 import SvgFilter from "@/assets/icons/svgFilter";
 import SvgLogo from "@/assets/icons/svgLogo";
 import SvgSearch from "@/assets/icons/svgSearch";
 import { TouchableOpacity, View } from "react-native";
-import { modalValueType } from "../..";
 
-type HeaderMainHeader = {
-	resetFilters: () => void;
-	setIsModalVisible: (value: boolean) => void;
-	setModalValue: (value: modalValueType) => void;
-};
+export const HeaderMainHeader = () => {
+	const { setIsModalVisible, setModalValue, resetFilters } = useGlobalContext();
 
-export const HeaderMainHeader = ({
-	resetFilters,
-	setIsModalVisible,
-	setModalValue,
-}: HeaderMainHeader) => {
 	function openModalHandler(value: modalValueType) {
 		setIsModalVisible(true);
 

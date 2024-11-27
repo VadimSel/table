@@ -1,14 +1,8 @@
+import { useGlobalContext } from "@/app/Context";
 import { Alert, Text, TouchableOpacity } from "react-native";
 
-type FiltersModalButtonProps = {
-	searchingMinScore: number;
-	searchingMaxScore: number;
-	fetchData: (name?: string, page?: number) => void;
-	resetFilters: () => void;
-};
-
-export const FiltersModalButton = (props: FiltersModalButtonProps) => {
-	const { searchingMinScore, searchingMaxScore, fetchData, resetFilters } = props;
+export const FiltersModalButton = () => {
+	const { searchingMinScore, searchingMaxScore, fetchData, resetFilters } = useGlobalContext();
 
 	function findHandler() {
 		if (searchingMinScore > searchingMaxScore) {

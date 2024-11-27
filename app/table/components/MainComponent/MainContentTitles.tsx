@@ -1,14 +1,10 @@
+import { useGlobalContext } from "@/app/Context";
 import SvgSortHeader from "@/assets/icons/svgSortHeader";
-import { TouchableOpacity, View, Text } from "react-native";
-import { sortFieldType } from "./MainContentComponent";
-import { DataResponse } from "@/app/types";
+import { Text, TouchableOpacity, View } from "react-native";
 
-type MainContentTitlesProps = {
-  sortPressHandler: (value: sortFieldType) => void
-  resultData: DataResponse[]
-}
+export const MainContentTitles = () => {
+	const {sortPressHandler, resultData} = useGlobalContext()
 
-export const MainContentTitles = ({sortPressHandler, resultData}: MainContentTitlesProps) => {
 	return (
 		<View className="border-r">
 			<View className="flex-row h-10">

@@ -1,17 +1,10 @@
-import { Pagination } from "@/app/types";
+import { useGlobalContext } from "@/app/Context";
 import SvgLeftArrow from "@/assets/icons/leftArrow";
 import SvgRightArrow from "@/assets/icons/rightArrow";
 import { TouchableOpacity, View } from "react-native";
 
-type PaginationButtonsProps = {
-  paginationData?: Pagination;
-  setIsLoading: (value: boolean) => void;
-  currentPage: number;
-	setCurrentPage: (currentPage: number) => void;
-}
-
-export const PaginationButtons = (props: PaginationButtonsProps) => {
-  const { paginationData, setIsLoading, setCurrentPage, currentPage } = props;
+export const PaginationButtons = () => {
+  const { paginationData, setIsLoading, setCurrentPage, currentPage } = useGlobalContext();
 
   function changeCurrentPage(action: string) {
 		if (action === "next" && paginationData?.has_next_page) {

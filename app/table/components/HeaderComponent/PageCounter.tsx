@@ -1,18 +1,13 @@
-import { Pagination } from "@/app/types";
+import { useGlobalContext } from "@/app/Context";
 import { useState } from "react";
 import { Alert, Text, TextInput, View } from "react-native";
 
-type PageCounter = {
-  paginationData?: Pagination;
-  currentPage: number;
-  setCurrentPage: (currentPage: number) => void;
-}
+export const PageCounter = () => {
+	const { paginationData, currentPage, setCurrentPage } = useGlobalContext();
 
-export const PageCounter = ({paginationData, currentPage, setCurrentPage}: PageCounter) => {
+	const [pageValue, setPageValue] = useState("");
 
-  const [pageValue, setPageValue] = useState("");
-
-  const changePageValueHandler = {
+	const changePageValueHandler = {
 		onChangeTextHandler(value: string) {
 			const number = Number(value);
 			if (number <= Number(paginationData?.last_visible_page)) {
@@ -22,7 +17,6 @@ export const PageCounter = ({paginationData, currentPage, setCurrentPage}: PageC
 					"Ошибка",
 					`Число должно быть от 0, до ${paginationData?.last_visible_page}`
 				);
-				
 			}
 		},
 
@@ -36,7 +30,7 @@ export const PageCounter = ({paginationData, currentPage, setCurrentPage}: PageC
 					"Ошибка",
 					`Доступный диапазон страниц от 1 до ${paginationData?.last_visible_page}`
 				);
-				
+
 				setPageValue("");
 			} else {
 				setCurrentPage(number);

@@ -1,7 +1,6 @@
-import { DataResponse } from "@/app/types";
+import { sortFieldType, useGlobalContext } from "@/app/Context";
 import SvgSortHeader from "@/assets/icons/svgSortHeader";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { sortFieldType } from "./MainContentComponent";
 
 // ---------------- Array options ---------------- \\
 
@@ -12,12 +11,9 @@ const fieldHeader: { label: string; field: sortFieldType }[] = [
 	{ label: "Возраст", field: "age" },
 ];
 
-type MainContentItems = {
-  sortPressHandler: (value: sortFieldType) => void
-  resultData: DataResponse[]
-}
+export const MainContentItems = () => {
+	const { sortPressHandler, resultData } = useGlobalContext();
 
-export const MainContentItems = ({sortPressHandler, resultData}: MainContentItems) => {
 	return (
 		<ScrollView horizontal>
 			<View>

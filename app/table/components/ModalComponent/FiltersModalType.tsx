@@ -1,3 +1,4 @@
+import { useGlobalContext } from "@/app/Context";
 import { Text, TouchableOpacity, View } from "react-native";
 
 // ---------------- Array options ---------------- \\
@@ -14,17 +15,9 @@ const typeOptions = [
 	{ label: "tv_special", option: "TV Special" },
 ];
 
-// ---------------- Types ---------------- \\
+export const FiltersModalType = () => {
+	const { searchingType, setSearchingType } = useGlobalContext();
 
-type FiltersModalTypeProps = {
-	searchingType: string;
-	setSearchingType: (searchingType: string) => void;
-};
-
-export const FiltersModalType = ({
-	searchingType,
-	setSearchingType,
-}: FiltersModalTypeProps) => {
 	return (
 		<View className="h-28 w-72 border rounded-md flex-row items-center justify-center flex-wrap mb-6">
 			{typeOptions.map(({ label, option }) => (

@@ -1,19 +1,13 @@
+import { useGlobalContext } from "@/app/Context";
 import { Text, TextInput, View } from "react-native";
 
-type FiltersModalScoreType = {
-	searchingMinScore: number;
-	setSearchingMinScore: (minScore: number) => void;
-	searchingMaxScore: number;
-	setSearchingMaxScore: (maxScore: number) => void;
-};
-
-export const FiltersModalScore = (props: FiltersModalScoreType) => {
+export const FiltersModalScore = () => {
 	const {
 		searchingMinScore,
 		setSearchingMinScore,
 		searchingMaxScore,
 		setSearchingMaxScore,
-	} = props;
+	} = useGlobalContext();
 
 	return (
 		<View className="flex-row justify-between w-40 mb-6">

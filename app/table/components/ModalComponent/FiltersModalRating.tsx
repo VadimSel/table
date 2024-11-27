@@ -1,3 +1,4 @@
+import { useGlobalContext } from "@/app/Context";
 import { Text, TouchableOpacity, View } from "react-native";
 
 // ---------------- Array options ---------------- \\
@@ -11,17 +12,9 @@ const ratingOptions = [
 	{ label: "rx", option: "Rx" },
 ];
 
-// ---------------- Types ---------------- \\
+export const FiltersModalRating = () => {
+	const {searchingRating, setSearchingRating} = useGlobalContext()
 
-type FiltersModalRatingProps = {
-	searchingRating: string;
-	setSearchingRating: (setSearchingRating: string) => void;
-};
-
-export const FiltersModalRating = ({
-	searchingRating,
-	setSearchingRating,
-}: FiltersModalRatingProps) => {
 	return (
 		<View className="h-16 w-72 border rounded-md flex-row items-center justify-evenly mb-11">
 			{ratingOptions.map(({ label, option }) => (

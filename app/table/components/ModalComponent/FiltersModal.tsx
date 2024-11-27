@@ -4,33 +4,7 @@ import { FiltersModalRating } from "./FiltersModalRating";
 import { FiltersModalScore } from "./FiltersModalScore";
 import { FiltersModalType } from "./FiltersModalType";
 
-type FiltersModalProps = {
-	searchingMinScore: number;
-	setSearchingMinScore: (minScore: number) => void;
-	searchingMaxScore: number;
-	setSearchingMaxScore: (maxScore: number) => void;
-	searchingType: string;
-	setSearchingType: (searchingType: string) => void;
-	searchingRating: string;
-	setSearchingRating: (setSearchingRating: string) => void;
-	fetchData: (name?: string, page?: number) => void;
-	resetFilters: () => void;
-};
-
-export const FiltersModal = (props: FiltersModalProps) => {
-	const {
-		searchingMinScore,
-		setSearchingMinScore,
-		searchingMaxScore,
-		setSearchingMaxScore,
-		searchingType,
-		setSearchingType,
-		searchingRating,
-		setSearchingRating,
-		fetchData,
-		resetFilters,
-	} = props;
-
+export const FiltersModal = () => {
 	return (
 		<View
 			onStartShouldSetResponder={() => true}
@@ -38,27 +12,12 @@ export const FiltersModal = (props: FiltersModalProps) => {
 		>
 			<Text className="font-medium my-3 text-xl">Фильтрация</Text>
 			<Text className="font-medium color-filterTitles">Рейтинг</Text>
-			<FiltersModalScore
-				{...{
-					searchingMinScore,
-					setSearchingMinScore,
-					searchingMaxScore,
-					setSearchingMaxScore,
-				}}
-			/>
+			<FiltersModalScore />
 			<Text className="font-medium mb-3 color-filterTitles">Тип</Text>
-			<FiltersModalType
-				searchingType={searchingType}
-				setSearchingType={setSearchingType}
-			/>
+			<FiltersModalType />
 			<Text className="font-medium mb-3 color-filterTitles">Возраст</Text>
-			<FiltersModalRating
-				searchingRating={searchingRating}
-				setSearchingRating={setSearchingRating}
-			/>
-			<FiltersModalButton
-				{...{ searchingMinScore, searchingMaxScore, fetchData, resetFilters }}
-			/>
+			<FiltersModalRating />
+			<FiltersModalButton />
 		</View>
 	);
 };

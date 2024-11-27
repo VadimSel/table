@@ -1,10 +1,9 @@
+import { useGlobalContext } from "@/app/Context";
 import { View, Text, TextInput } from "react-native";
 
-type SearchModalProps = {
-	fetchData: (name: string, page: number) => void;
-};
+export const SearchModal = () => {
+	const { fetchData} = useGlobalContext()
 
-export const SearchModal = ({ fetchData }: SearchModalProps) => {
 	return (
 		<View
 			onStartShouldSetResponder={() => true}

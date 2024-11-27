@@ -1,8 +1,11 @@
+import { ContextProvider } from "./Context";
 import Table from "./table";
 
 const HomePage = () => {
 	return (
-      <Table/>
+		<ContextProvider>
+			<Table />
+		</ContextProvider>
 	);
 };
 
